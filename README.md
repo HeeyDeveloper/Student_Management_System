@@ -1,24 +1,57 @@
 # Student Management System
 
-A C# Console Application for managing student records. This project uses the .NET Framework 4.7.2 and SQL Server for data persistence, interacting with the database via stored procedures.
+A **C# Console Application** for managing student records, built as a first project to demonstrate core programming concepts. The application uses **.NET Framework 4.7.2**, **SQL Server** for data persistence, **ADO.NET** for database communication, and **Generic Collections** for in-memory data handling — all connected through a normalized database with a single stored procedure handling all CRUD operations.
 
 ## Features
 
 - **Add Student**: Capture and save details such as Name, Gender, Age, Phone Number, Email, Class, Section, Roll Number, Course, City, State, and Country.
-- **Update Student**: Modify details of any student record by specifying their Student ID.
-- **Display All Students**: List all student records stored in the database.
-- **Search Student by ID**: Quickly retrieve individual student details by their ID.
-- **Delete Student**: Remove a student record from the system with a confirmation prompt.
+- **Update Student**: Modify details of any existing student record by specifying their Student ID.
+- **Display All Students**: List all student records with full details joined from normalized lookup tables.
+- **Search Student by ID**: Quickly retrieve individual student details using their unique Student ID.
+- **Delete Student**: Remove a student record from the system with a preview and confirmation prompt before deletion.
 
 ---
 
 ## Technical Stack
 
-- **Language**: C#
-- **Framework**: .NET Framework 4.7.2
-- **Database**: SQL Server
-- **Data Access**: ADO.NET (`SqlConnection`, `SqlCommand`, `SqlDataReader`)
-- **Architecture**: Stored Procedure-driven CRUD operations
+### Language & Framework
+
+- **Language**: C# (.NET Framework 4.7.2)
+- **Project Type**: Console Application
+- **IDE**: Visual Studio 2022
+
+### Database
+
+- **RDBMS**: SQL Server (SQL Server Express)
+- **Database Design**: Normalized schema — the main `Student` table references five separate lookup tables (`Gender`, `Course`, `Address_City`, `Address_State`, `Address_Country`) via **Foreign Keys**, eliminating data redundancy.
+- **Stored Procedure**: A single stored procedure (`sp_Student_Management_System_DB`) handles all 5 CRUD operations, selected at runtime using a `@UserChoice` parameter.
+- **SQL Joins**: `INNER JOIN` used across 5 tables to fetch human-readable data instead of raw IDs.
+
+### Data Access — ADO.NET
+
+| Class | Usage |
+| --- | --- |
+| `SqlConnection` | Establishes and manages the connection to SQL Server |
+| `SqlCommand` | Executes the stored procedure with `CommandType.StoredProcedure` |
+| `SqlParameter` / `SqlParameter[]` | Passes typed input parameters to the stored procedure safely |
+| `SqlDataReader` | Reads result sets row-by-row for display and delete preview operations |
+
+### Collections — C# Generics
+
+- **`List<T>`** (Generic List) is used to collect rows returned by `SqlDataReader` into strongly-typed model objects before displaying them.
+- Three custom model classes serve as the data container type `T`:
+
+| Class | Purpose |
+| --- | --- |
+| `AddStudent` | Model for add operation data |
+| `ReadStudent` | Model for display/search result rows |
+| `DeleteStudent` | Model for previewing a record before deletion |
+
+### OOP Concepts Applied
+
+- **Classes & Objects**: Three dedicated model classes (`AddStudent`, `ReadStudent`, `DeleteStudent`) with constructors and public fields.
+- **Encapsulation**: Data is captured via console input, wrapped into model objects, and passed cleanly through the application.
+- **`using` blocks**: Proper resource management for `SqlConnection`, `SqlCommand`, and `SqlDataReader` to ensure connection disposal.
 
 ---
 
@@ -27,12 +60,15 @@ A C# Console Application for managing student records. This project uses the .NE
 To run this application, you need to set up the database and stored procedures on your local SQL Server instance.
 
 ### 1. Update Connection String
+
 In [Program.cs](file:///c:/Users/ayush/source/repos/My_First_Project_Student_Management_System/Student_Management_System/Program.cs#L31-L32), update the SQL Server connection string to match your SQL Server instance settings:
+
 ```csharp
 using (SqlConnection connect = new SqlConnection("DATA SOURCE = YOUR_SERVER_NAME; INITIAL CATALOG = Student_Management_System_DB; INTEGRATED SECURITY = SSPI"))
 ```
 
 ### 2. SQL Schema & Stored Procedure script
+
 Execute the following SQL script in SQL Server Management Studio (SSMS) or your preferred SQL client to create the database, table, and stored procedure:
 
 ```sql
